@@ -1,0 +1,12 @@
+{
+  "overrides": {
+    "dates": {
+      "name": "Wheel of Whimsy",
+      "emoji": "🎡"
+    }
+  },
+  "coming_soon": [
+    { "name": "Splits", "emoji": "🏃", "description": "Garmin + Fitbod training in one place." },
+    { "name": "Weekly Planner", "emoji": "🗓️", "description": "Plan and shift workouts and side-project time." }
+  ]
+}
