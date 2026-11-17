@@ -35,6 +35,16 @@
     main { max-width: 720px; margin: 0 auto; }
     h1 { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.02em; }
     .sub { color: var(--muted); margin-top: 6px; margin-bottom: 36px; }
+    .head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .refresh {
+      width: 38px; height: 38px; border-radius: 999px; flex: none;
+      background: var(--card); border: 1px solid var(--border); color: var(--text);
+      font-size: 1.15rem; line-height: 1; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .refresh:hover { border-color: var(--accent); }
+    .refresh.spin span { display: inline-block; animation: spin 0.6s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
@@ -73,7 +83,10 @@
 </head>
 <body>
   <main>
-    <h1>Matt's Apps</h1>
+    <div class="head">
+      <h1>Matt's Apps</h1>
+      <button class="refresh" id="refresh" type="button" aria-label="Refresh"><span>↻</span></button>
+    </div>
     <p class="sub">Little things I've built.</p>
     <div class="grid" id="apps"></div>
   </main>
@@ -86,6 +99,16 @@
       { name: "Splits", icon: "🏃", desc: "Garmin and Fitbod workouts in one place.", url: "/splits/?from=home" },
       { name: "Weekly Planner", icon: "🗓️", desc: "Plan and shift workouts and side-project time.", url: "" },
     ];
+
+    // Refresh: reload the page, skipping any cached copy.
+    document.getElementById("refresh").addEventListener("click", (e) => {
+      e.currentTarget.classList.add("spin");
+      const url = new URL(location.href);
+      url.searchParams.set("r", Date.now());
+      location.replace(url);
+    });
+    // Drop the cache-busting param after a refresh so the address stays clean.
+    if (new URLSearchParams(location.search).has("r")) history.replaceState(null, "", location.pathname);
 
     const grid = document.getElementById("apps");
     for (const app of apps) {
