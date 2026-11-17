@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Matt's Apps</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧰</text></svg>">
+  <style>
+    :root {
+      --bg: #fafaf9;
+      --card: #ffffff;
+      --text: #1c1917;
+      --muted: #78716c;
+      --border: #e7e5e4;
+      --accent: #2563eb;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0c0a09;
+        --card: #1c1917;
+        --text: #fafaf9;
+        --muted: #a8a29e;
+        --border: #292524;
+        --accent: #60a5fa;
+      }
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 56px 20px;
+    }
+    main { max-width: 720px; margin: 0 auto; }
+    h1 { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.02em; }
+    .sub { color: var(--muted); margin-top: 6px; margin-bottom: 36px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 14px;
+    }
+    .card {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 20px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+    a.card:hover { transform: translateY(-2px); border-color: var(--accent); }
+    .icon { font-size: 1.9rem; line-height: 1; }
+    .name { font-weight: 600; font-size: 1.05rem; }
+    .desc { color: var(--muted); font-size: 0.92rem; line-height: 1.4; flex: 1; }
+    .tag {
+      align-self: flex-start;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+    .tag.live { color: var(--accent); border-color: var(--accent); }
+    .soon { opacity: 0.6; cursor: default; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Matt's Apps</h1>
+    <p class="sub">Little things I've built.</p>
+    <div class="grid" id="apps"></div>
+  </main>
+
+  <script>
+    // Add new apps here. Leave url empty for "coming soon".
+    const apps = [
+      { name: "Wheel of Whimsy", icon: "🎡", desc: "Spin the wheel to pick a date idea.", url: "/dates/?list=matt" },
+      { name: "Splits", icon: "🏃", desc: "Garmin and Fitbod workouts in one place.", url: "" },
+      { name: "Weekly Planner", icon: "🗓️", desc: "Plan and shift workouts and side-project time.", url: "" },
+    ];
+
+    const grid = document.getElementById("apps");
+    for (const app of apps) {
+      const live = Boolean(app.url);
+      const el = document.createElement(live ? "a" : "div");
+      el.className = "card" + (live ? "" : " soon");
+      if (live) el.href = app.url;
+      el.innerHTML = `
+        <div class="icon">${app.icon}</div>
+        <div class="name">${app.name}</div>
+        <div class="desc">${app.desc}</div>
+        <span class="tag ${live ? "live" : ""}">${live ? "Open" : "Coming soon"}</span>`;
+      grid.appendChild(el);
+    }
+  </script>
+</body>
+</html>
