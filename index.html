@@ -45,6 +45,18 @@
     .refresh:hover { border-color: var(--accent); }
     .refresh.spin span { display: inline-block; animation: spin 0.6s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
+    html, body { overscroll-behavior-y: contain; }
+    .ptr {
+      position: fixed; top: 0; left: 50%; z-index: 10;
+      width: 38px; height: 38px; margin-left: -19px; border-radius: 999px;
+      background: var(--card); border: 1px solid var(--border); color: var(--text);
+      display: flex; align-items: center; justify-content: center; font-size: 1.15rem;
+      transform: translateY(-48px); opacity: 0; pointer-events: none;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    }
+    .ptr.settle { transition: transform 0.2s ease, opacity 0.2s ease; }
+    .ptr.ready { color: var(--accent); border-color: var(--accent); }
+    .ptr.spin span { display: inline-block; animation: spin 0.6s linear infinite; }
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
@@ -82,6 +94,7 @@
   </style>
 </head>
 <body>
+  <div class="ptr" id="ptr" aria-hidden="true"><span>↻</span></div>
   <main>
     <div class="head">
       <h1>Matt's Apps</h1>
@@ -104,12 +117,51 @@
     ];
 
     // Refresh: reload the page, skipping any cached copy.
-    document.getElementById("refresh").addEventListener("click", (e) => {
-      e.currentTarget.classList.add("spin");
+    function refresh() {
       const url = new URL(location.href);
       url.searchParams.set("r", Date.now());
       location.replace(url);
+    }
+    document.getElementById("refresh").addEventListener("click", (e) => {
+      e.currentTarget.classList.add("spin");
+      refresh();
     });
+
+    // Pull down from the top of the page to refresh.
+    (function pullToRefresh() {
+      const ptr = document.getElementById("ptr");
+      const THRESHOLD = 70, MAX = 110;
+      let startY = null, dist = 0;
+      const place = (d) => {
+        ptr.style.transform = `translateY(${d - 48}px) rotate(${d * 3}deg)`;
+        ptr.style.opacity = Math.min(d / THRESHOLD, 1);
+        ptr.classList.toggle("ready", d >= THRESHOLD);
+      };
+      addEventListener("touchstart", (e) => {
+        if (window.scrollY > 0 || e.touches.length !== 1) return;
+        startY = e.touches[0].clientY; dist = 0;
+        ptr.classList.remove("settle");
+      }, { passive: true });
+      addEventListener("touchmove", (e) => {
+        if (startY === null) return;
+        const dy = e.touches[0].clientY - startY;
+        if (dy <= 0) { dist = 0; place(0); return; }
+        dist = Math.min(dy * 0.5, MAX);
+        place(dist);
+      }, { passive: true });
+      addEventListener("touchend", () => {
+        if (startY === null) return;
+        startY = null;
+        ptr.classList.add("settle");
+        if (dist >= THRESHOLD) {
+          ptr.style.transform = "translateY(24px)";
+          ptr.classList.add("spin");
+          refresh();
+        } else {
+          place(0);
+        }
+      });
+    })();
     // Drop the cache-busting param after a refresh so the address stays clean.
     if (new URLSearchParams(location.search).has("r")) history.replaceState(null, "", location.pathname);
 
